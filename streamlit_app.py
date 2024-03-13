@@ -1,40 +1,29 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import requests
 
-"""
-# Welcome to Streamlit!
+# Function to fetch GitHub user data
+def fetch_github_user(username):
+    url = f"https://api.github.com/users/{username}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+st.title('GitHub Profile Viewer')
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+username = st.text_input('Enter GitHub username:', '')
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# TODO: Use the fetch_github_user function to get user data
+# and display the user's name, bio, and avatar.
+# Hint: Use st.image for the avatar, st.write or st.markdown for text.
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
-
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+if username:
+    user_data = fetch_github_user(username)
+    if user_data:
+        st.image(user_data['avatar_url'])
+        # Display the GitHub user's details
+        # Participants will fill in these parts using AI tools.
+        pass  # Replace this with code to display user data
+    else:
+        st.error("User not found")
