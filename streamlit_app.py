@@ -1,29 +1,29 @@
+from openai import OpenAI
 import streamlit as st
-import requests
 
-# Function to fetch GitHub user data
-def fetch_github_user(username):
-    url = f"https://api.github.com/users/{username}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
+with st.sidebar:
+    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+    "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
 
-st.title('GitHub Profile Viewer')
+st.title("💬 Chatbot")
+st.caption("🚀 A streamlit chatbot powered by OpenAI LLM")
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
 
-username = st.text_input('Enter GitHub username:', '')
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).write(msg["content"])
 
-# TODO: Use the fetch_github_user function to get user data
-# and display the user's name, bio, and avatar.
-# Hint: Use st.image for the avatar, st.write or st.markdown for text.
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
 
-if username:
-    user_data = fetch_github_user(username)
-    if user_data:
-        st.image(user_data['avatar_url'])
-        # Display the GitHub user's details
-        # Participants will fill in these parts using AI tools.
-        pass  # Replace this with code to display user data
-    else:
-        st.error("User not found")
+    client = OpenAI(api_key=openai_api_key)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
+    msg = response.choices[0].message.content
+    st.session_state.messages.append({"role": "assistant", "content": msg})
+    st.chat_message("assistant").write(msg)
