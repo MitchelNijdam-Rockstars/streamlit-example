@@ -12,7 +12,7 @@ def fetch_github_user(username):
 
 st.title('GitHub Profile Viewer')
 
-username = st.text_input('Enter GitHub username:', '')
+username = st.text_input('Enter GitHub username!:', '')
 
 # TODO: Use the fetch_github_user function to get user data
 # and display the user's name, bio, and avatar.
